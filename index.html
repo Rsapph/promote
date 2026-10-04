@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>错题集</title>
+<style>
+:root{
+  --blue:#3b82f6; --blue-dark:#2563eb; --bg:#f4f7fb; --card:#ffffff; --text:#1e2937;
+  --muted:#6b7280; --border:#e2e8f0; --danger:#ef4444; --ok:#10b981; --warn:#f59e0b;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --bg:#0f172a; --card:#1e293b; --text:#e5e7eb; --muted:#94a3b8; --border:#334155; }
+}
+:root[data-theme="dark"]{ --bg:#0f172a; --card:#1e293b; --text:#e5e7eb; --muted:#94a3b8; --border:#334155; }
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);}
+#app{max-width:640px;margin:0 auto;min-height:100%;padding-bottom:80px;}
+header.top{position:sticky;top:0;top:env(safe-area-inset-top,0px);background:var(--blue);color:#fff;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;z-index:10;}
+header.top h1{font-size:18px;margin:0;}
+header.top button{background:rgba(255,255,255,.2);border:none;color:#fff;padding:6px 10px;border-radius:8px;font-size:13px;}
+.page{padding:16px;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.big-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 8px;font-size:13px;color:var(--text);cursor:pointer;}
+.big-btn .ic{font-size:26px;}
+.big-btn:active{background:var(--blue);color:#fff;}
+input,textarea,select{width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font-size:15px;margin-bottom:10px;}
+label{font-size:13px;color:var(--muted);display:block;margin-bottom:4px;}
+button.primary{background:var(--blue);color:#fff;border:none;padding:12px;border-radius:10px;font-size:15px;width:100%;cursor:pointer;}
+button.primary:active{background:var(--blue-dark);}
+button.ghost{background:transparent;border:1px solid var(--border);color:var(--text);padding:10px;border-radius:10px;width:100%;}
+.tag{display:inline-block;background:#dbeafe;color:var(--blue-dark);border-radius:20px;padding:3px 10px;font-size:12px;margin:2px 4px 2px 0;}
+:root[data-theme="dark"] .tag{background:#1e3a5f;color:#93c5fd;}
+.dropzone{border:2px dashed var(--border);border-radius:12px;padding:20px 10px;text-align:center;color:var(--muted);font-size:13px;cursor:pointer;margin-bottom:10px;}
+.dropzone.drag{border-color:var(--blue);color:var(--blue);background:rgba(59,130,246,.06);}
+.tag.mine{background:#dcfce7;color:#166534;}
+:root[data-theme="dark"] .tag.mine{background:#14532d;color:#bbf7d0;}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .tag.mine{background:#14532d;color:#bbf7d0;} }
+.mistake-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px;cursor:pointer;}
+.mistake-item .meta{font-size:12px;color:var(--muted);margin-top:6px;}
+.status-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px;}
+.s-unreviewed{background:var(--muted);} .s-reviewing{background:var(--warn);} .s-mastered{background:var(--ok);}
+.bottom-nav{position:fixed;bottom:0;bottom:env(safe-area-inset-bottom,0px);left:0;right:0;background:var(--card);border-top:1px solid var(--border);display:flex;max-width:640px;margin:0 auto;}
+.bottom-nav div{flex:1;text-align:center;padding:8px 0;font-size:11px;color:var(--muted);}
+.bottom-nav div.active{color:var(--blue);}
+.bottom-nav .ic{font-size:20px;display:block;}
+.alert-box{background:#fef2f2;color:var(--danger);border:1px solid #fecaca;border-radius:10px;padding:10px 12px;font-size:13px;margin-bottom:12px;}
+:root[data-theme="dark"] .alert-box{background:#3f1d1d;}
+.spinner{border:3px solid var(--border);border-top:3px solid var(--blue);border-radius:50%;width:24px;height:24px;animation:spin 1s linear infinite;margin:12px auto;}
+@keyframes spin{to{transform:rotate(360deg);}}
+h3{margin:4px 0 10px;}
+.filter-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:10px;}
+.filter-row button{white-space:nowrap;padding:6px 12px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:12px;}
+.filter-row button.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+@media print{ .bottom-nav,header.top,.no-print{display:none!important;} #app{max-width:100%;padding:0;} body{background:#fff;color:#000;} }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+const STORE_KEY='mistakeBook_profiles_v1';
+
+function safeGet(k,fallback){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):fallback; }catch(e){ return fallback; } }
+function safeSet(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); return true; }catch(e){ return false; } }
+
+let state = safeGet(STORE_KEY, {profiles:{}, current:null});
+function saveState(){ return safeSet(STORE_KEY, state); }
+function curProfile(){ return state.current ? state.profiles[state.current] : null; }
+
+function newProfile(name){
+  state.profiles[name] = {
+    name, mistakes: [],
+    settings:{interval1:3, interval2:7, interval3:14, masterAfter:3, resetInterval:1, reminderTime:'19:00'}
+  };
+  state.current = name; saveState();
+}
+
+function uid(){ return 'm'+Date.now()+Math.random().toString(36).slice(2,7); }
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function addDays(iso,d){ const dt=new Date(iso); dt.setDate(dt.getDate()+d); return dt.toISOString().slice(0,10); }
+
+let route = {view:'home'};
+function go(view, params){ if(view==='add') pendingExtras={}; route={view, ...(params||{})}; render(); }
+
+// ---------- AI helpers ----------
+const AI_KEY='mistakeBook_ai_v1';
+let aiMem={};
+function AI_CFG(){ const c=safeGet(AI_KEY,{}); return c.key?c:aiMem; }
+let aiErr='';
+function aiErrMsg(e){
+  const m=(e&&e.message)||String(e);
+  if(m==='NO_KEY') return '还没有设置 API Key，请先到“设置”页填写。';
+  if(/HTTP 401/.test(m)) return 'API Key 无效或已被停用，请检查“设置”里填写的 Key。（'+m+'）';
+  if(/HTTP 4(29|02)/.test(m)) return '额度不足或请求太频繁，请到 console.anthropic.com 检查账户余额。（'+m+'）';
+  if(/Failed to fetch|NetworkError|Load failed/i.test(m)) return '网络请求失败。请确认电脑能访问 api.anthropic.com；如果网络正常，可能是浏览器拦截了本地文件的跨域请求，可以换 Chrome 或 Edge 再试。';
+  return m;
+}
+async function callClaude(content, maxTokens){
+  const cfg=AI_CFG();
+  if(!cfg.key) throw new Error('NO_KEY');
+  const r=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'content-type':'application/json','x-api-key':cfg.key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:cfg.model||'claude-sonnet-5-5', max_tokens:maxTokens||2000, messages:[{role:'user',content}]})
+  });
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error('HTTP '+r.status+': '+((d.error&&d.error.message)||''));
+  return (d.content||[]).map(b=>b.text||'').join('');
+}
+async function aiAnalyzeText(promptText){
+  aiErr='';
+  try{
+    const t=await callClaude(promptText+'\n只输出JSON，不要任何多余文字或代码块标记。',2500);
+    const s=t.indexOf('{'), e=t.lastIndexOf('}');
+    return JSON.parse(t.slice(s,e+1));
+  }catch(e){ aiErr=aiErrMsg(e); return null; }
+}
+const SCAN_LIST_PROMPT='请识别这张图片里的每一道独立题目（可能是一整页练习或试卷，包含多道题）。只需要把每道题目的原文（含选项）、学科、孩子的手写答案（如果有）转写出来，不需要解答或分析。只输出一个JSON，不要任何其他文字，格式：{"questions":[{"question_text":"题目原文，完整转写","subject":"语文/数学/英语/物理/化学/其他选一个","student_answer":"孩子的手写答案，没有则为空字符串"}]}。数学符号请尽量用文字或常见符号准确写出（如√2、3/4、x²）。按题目在图片中出现的顺序排列。';
+let pickerState=null;
+window.scanPhoto=async function(ev,mode){
+  const file=ev.target.files[0]; if(!file) return;
+  const st=document.getElementById(mode==='add'?'ocrStatus':'s_ocrStatus');
+  st.innerHTML='<div class="spinner"></div><p style="text-align:center;font-size:12px;color:var(--muted);">正在识别图片里有哪些题目…</p>';
+  try{
+    const dataUrl=await compressImage(file,1600,0.85);
+    const text=await callClaude([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:dataUrl.split(',')[1]}},{type:'text',text:SCAN_LIST_PROMPT}],3000);
+    const parsed=parseQuickJSON(text);
+    if(!parsed||!parsed.length){ st.innerHTML='<p style="color:var(--danger);font-size:13px;">没有在图片里识别到题目，换一张清晰点的照片再试。</p>'; ev.target.value=''; return; }
+    if(parsed.length===1){ await analyzeAndApply(parsed,mode,st); ev.target.value=''; return; }
+    renderQuestionPicker(parsed,mode,st);
+  }catch(e){ st.innerHTML='<p style="color:var(--danger);font-size:13px;">识别失败：'+aiErrMsg(e)+'</p>'; }
+  ev.target.value='';
+}
+function renderQuestionPicker(list,mode,st){
+  pickerState={list,mode};
+  st.innerHTML=`<div class="card" style="margin-top:8px;">
+    <p style="font-size:13px;color:var(--muted);margin-top:0;">识别到 ${list.length} 道题目，勾选你需要收录的错题（默认全不选，自己挑）：</p>
+    ${list.map((q,i)=>`<label style="display:block;margin-bottom:8px;"><input type="checkbox" class="qpick" data-i="${i}" style="width:auto;display:inline-block;vertical-align:top;margin-right:6px;">
+      <span style="font-size:13px;">【${q.subject||'其他'}】${(q.questionText||'(未识别到文字)').slice(0,40)}${(q.questionText||'').length>40?'…':''}${q.myAnswer?'　已作答：'+q.myAnswer:''}</span></label>`).join('')}
+    <div class="grid2">
+      <button class="ghost" onclick="toggleAllPicks(true)">全选</button>
+      <button class="ghost" onclick="toggleAllPicks(false)">全不选</button>
+    </div>
+    <button class="primary" style="margin-top:8px;" onclick="confirmPickedQuestions()">分析选中的题目</button>
+  </div>`;
+}
+window.toggleAllPicks=function(v){ document.querySelectorAll('.qpick').forEach(b=>b.checked=v); }
+window.confirmPickedQuestions=async function(){
+  const boxes=[...document.querySelectorAll('.qpick:checked')];
+  if(!boxes.length){ alert('请至少勾选一道题'); return; }
+  const picked=boxes.map(b=>pickerState.list[+b.dataset.i]);
+  const mode=pickerState.mode;
+  const st=document.getElementById(mode==='add'?'ocrStatus':'s_ocrStatus');
+  await analyzeAndApply(picked,mode,st);
+}
+async function analyzeAndApply(picked,mode,st){
+  st.innerHTML='<div class="spinner"></div><p style="text-align:center;font-size:12px;color:var(--muted);">正在分析选中的'+picked.length+'道题，请稍等…</p>';
+  const listText=picked.map((q,i)=>`题${i+1}（学科：${q.subject||'其他'}；孩子的答案：${q.myAnswer||'（没有）'}）：\n${q.questionText}`).join('\n\n');
+  const prompt='你是错题识别助手，下面是已经转写好的题目文字，请逐题分析：给出正确答案、考点标签（3-5个）、难度（简单/中等/困难）、对比孩子的答案指出错误原因（审题错误/概念混淆/计算错误/步骤遗漏，没有孩子的答案就说明无法判断）、写一段知识点讲解解释这道题涉及的背景知识、分步解题思路。只输出一个JSON，不要任何其他文字，格式：{"questions":[{"subject":"...","question_text":"原题照抄","student_answer":"...","correct_answer":"...","tags":["..."],"difficulty":"...","error_analysis":"...","knowledge_explanation":"...","solution_steps":["..."]}]}。题目列表：\n\n'+listText;
+  try{
+    const text=await callClaude(prompt,4000);
+    st.innerHTML='';
+    if(mode==='add'){ document.getElementById('quickPaste').value=text; parseQuickPasteToAdd(); }
+    else { document.getElementById('s_quickPaste').value=text; parseQuickPasteToSearch(); }
+  }catch(e){ st.innerHTML='<p style="color:var(--danger);font-size:13px;">分析失败：'+aiErrMsg(e)+'</p>'; }
+}
+function persistAI(){
+  aiMem={key:document.getElementById('ai_key').value.trim(), model:document.getElementById('ai_model').value.trim()||'claude-sonnet-5-5'};
+  return safeSet(AI_KEY,aiMem);
+}
+window.saveAISettings=function(){
+  if(!document.getElementById('ai_key').value.trim()){ alert('还没有填写API Key'); return; }
+  alert(persistAI()?'已保存':'已生效，但这个浏览器不允许保存数据，关闭页面后需要重新填写。');
+}
+window.testAI=async function(){
+  persistAI();
+  const el=document.getElementById('aiTestResult'); el.textContent='测试中…';
+  try{ const t=await callClaude('只回复 OK 两个字母',20); el.textContent='✅ 连接成功：'+t; }
+  catch(e){ el.textContent='❌ '+aiErrMsg(e); }
+}
+
+// ---------- Render ----------
+function setupDropzone(id, mode){
+  const el = document.getElementById(id); if(!el) return;
+  ['dragenter','dragover'].forEach(ev=>el.addEventListener(ev, e=>{ e.preventDefault(); el.classList.add('drag'); }));
+  ['dragleave','drop'].forEach(ev=>el.addEventListener(ev, e=>{ e.preventDefault(); el.classList.remove('drag'); }));
+  el.addEventListener('drop', e=>{
+    const f=[...(e.dataTransfer.files||[])].find(x=>x.type.startsWith('image/'));
+    if(f) scanPhoto({target:{files:[f], value:''}}, mode);
+  });
+}
+document.addEventListener('paste', e=>{
+  if(route.view!=='add' && route.view!=='search') return;
+  const item=[...(e.clipboardData&&e.clipboardData.items||[])].find(i=>i.type.startsWith('image/'));
+  if(!item) return;
+  e.preventDefault();
+  scanPhoto({target:{files:[item.getAsFile()], value:''}}, route.view);
+});
+function render(){
+  const app=document.getElementById('app');
+  if(!state.current){ app.innerHTML = renderProfileSelect(); bindProfileSelect(); return; }
+  let body='';
+  if(route.view==='home') body = renderHome();
+  else if(route.view==='add') body = renderAdd();
+  else if(route.view==='search') body = renderSearch();
+  else if(route.view==='browse') body = renderBrowse();
+  else if(route.view==='detail') body = renderDetail(route.id);
+  else if(route.view==='review') body = renderReview();
+  else if(route.view==='overview') body = renderOverview();
+  else if(route.view==='settings') body = renderSettings();
+
+  app.innerHTML = `
+    <header class="top">
+      <h1>📘 ${curProfile().name}的错题集</h1>
+      <button onclick="switchProfile()">切换档案</button>
+    </header>
+    <div class="page">${body}</div>
+    <div class="bottom-nav">
+      ${navItem('home','🏠','首页')}
+      ${navItem('browse','🏷️','标签')}
+      ${navItem('review','🔁','复习')}
+      ${navItem('overview','📋','总览')}
+      ${navItem('settings','⚙️','设置')}
+    </div>
+  `;
+  bindView();
+}
+function navItem(v,ic,label){
+  return `<div class="${route.view===v?'active':''}" onclick="go('${v}')"><span class="ic">${ic}</span>${label}</div>`;
+}
+
+function renderProfileSelect(){
+  const names = Object.keys(state.profiles);
+  return `
+    <div class="page" style="padding-top:60px;">
+      <h3 style="text-align:center;">📘 错题集管理工具</h3>
+      <div class="card">
+        ${names.length? `<label>选择已有档案</label>` + names.map(n=>`<button class="ghost" style="margin-bottom:8px;" onclick="chooseProfile('${n}')">${n}</button>`).join('') : `<p style="color:var(--muted);text-align:center;">还没有学习档案，创建一个吧</p>`}
+        <label style="margin-top:10px;">新建档案（输入孩子姓名）</label>
+        <input id="newProfileName" placeholder="例如：小明">
+        <button class="primary" onclick="createProfile()">创建档案</button>
+      </div>
+    </div>
+  `;
+}
+function bindProfileSelect(){}
+window.chooseProfile=function(n){ state.current=n; saveState(); go('home'); }
+window.createProfile=function(){
+  const v=document.getElementById('newProfileName').value.trim();
+  if(!v){ alert('请输入姓名'); return; }
+  if(state.profiles[v]){ chooseProfile(v); return; }
+  newProfile(v); go('home');
+}
+window.switchProfile=function(){ state.current=null; saveState(); render(); }
+
+function renderHome(){
+  const p = curProfile();
+  const today = todayISO();
+  const due = p.mistakes.filter(m=>m.masteryStatus!=='mastered' && m.nextReviewDate && m.nextReviewDate<=today);
+  const attention = p.mistakes.filter(m=>(m.failStreak||0)>=3);
+  const recent = [...p.mistakes].sort((a,b)=>b.createdAt-a.createdAt).slice(0,6);
+  return `
+    <div class="card" style="text-align:center;background:var(--blue);color:#fff;">
+      <div style="font-size:13px;opacity:.9;">今日待复习</div>
+      <div style="font-size:36px;font-weight:bold;">${due.length}</div>
+      <button class="ghost" style="border-color:rgba(255,255,255,.5);color:#fff;margin-top:6px;" onclick="go('review')">开始复习</button>
+    </div>
+    ${attention.length? `<div class="alert-box">⚠️ 有 ${attention.length} 道错题需要重点关注</div>`:''}
+    <div class="grid3" style="margin-bottom:14px;">
+      <div class="big-btn" onclick="go('add')"><span class="ic">📷</span>拍照录题</div>
+      <div class="big-btn" onclick="go('search')"><span class="ic">🔍</span>搜题查误</div>
+      <div class="big-btn" onclick="go('browse')"><span class="ic">🏷️</span>标签浏览</div>
+    </div>
+    <h3>最近录入</h3>
+    ${recent.length? recent.map(mistakeCardHtml).join('') : `<p style="color:var(--muted);">还没有错题，去录入第一道吧</p>`}
+  `;
+}
+
+function statusDot(s){ return `<span class="status-dot s-${s}"></span>`; }
+function statusLabel(s){ return s==='mastered'?'已掌握':s==='reviewing'?'复习中':'未复习'; }
+function mistakeCardHtml(m){
+  return `<div class="mistake-item" onclick="go('detail',{id:'${m.id}'})">
+    <div>${(m.questionText||'').slice(0,40)}${(m.questionText||'').length>40?'…':''}</div>
+    <div class="meta">${statusDot(m.masteryStatus)}${statusLabel(m.masteryStatus)} · ${m.subject||'未分类'} · ${(m.tags||[]).slice(0,2).map(t=>`<span class="tag">${t}</span>`).join('')}${(m.customTags||[]).map(t=>`<span class="tag mine">${t}</span>`).join('')}</div>
+  </div>`;
+}
+
+function renderAdd(){
+  return `
+    <h3>拍照/手动录入错题</h3>
+    <div class="card">
+      <label>📷 拍照/从相册选图，或把图片拖进来/粘贴（Ctrl+V），自动识别题目并分析（需先在“设置”里填写API Key）</label>
+      <div class="dropzone" id="dz_add" onclick="document.getElementById('photoPicker_add').click()">点击选择图片，或拖拽图片到这里</div>
+      <input type="file" accept="image/*" id="photoPicker_add" style="display:none;" onchange="scanPhoto(event,'add')">
+      <div id="ocrStatus"></div>
+      <p style="text-align:center;color:var(--muted);font-size:12px;margin:10px 0;">— 或者手动粘贴 —</p>
+      <label>📋 粘贴Claude识别结果</label>
+      <textarea id="quickPaste" rows="4" placeholder="QUESTION: ...&#10;SUBJECT: 数学&#10;TAGS: ...&#10;ANSWER: ..."></textarea>
+      <button class="ghost" onclick="parseQuickPasteToAdd()">解析并自动填入下方表单</button>
+    </div>
+    <div class="card">
+      <label>题目原文</label>
+      <textarea id="f_question" rows="3" placeholder="题目内容"></textarea>
+      <label>学科</label>
+      <select id="f_subject">
+        <option>语文</option><option>数学</option><option>英语</option><option>物理</option><option>化学</option><option>其他</option>
+      </select>
+      <label>难度</label>
+      <select id="f_difficulty"><option>简单</option><option selected>中等</option><option>困难</option></select>
+      <label>考点标签（逗号分隔）</label>
+      <input id="f_tags" placeholder="例如：一元一次方程, 移项">
+      <button class="ghost" onclick="autoTag()">🤖 AI自动生成考点标签</button>
+      <label style="margin-top:10px;">我的分类（自选，最多3个，和系统考点标签分开；点下面的选项或自己输入，逗号分隔）</label>
+      <input id="f_mytags" placeholder="例如：审题失误, 期中重点">
+      ${myTagChips('f_mytags')}
+      <label style="margin-top:10px;">我的答案</label>
+      <textarea id="f_myanswer" rows="2"></textarea>
+      <label>正确答案</label>
+      <textarea id="f_correct" rows="2"></textarea>
+      <button class="primary" onclick="saveMistake()">保存错题</button>
+    </div>
+  `;
+}
+let pendingExtras = {};
+function parseQuickJSON(raw){
+  try{
+    const s=raw.indexOf('{'), e=raw.lastIndexOf('}');
+    if(s<0||e<=s) return null;
+    const o=JSON.parse(raw.slice(s,e+1));
+    const arr=Array.isArray(o.questions)?o.questions:(o.question_text?[o]:null);
+    if(!arr||!arr.length) return null;
+    return arr.map(q=>({
+      questionText:q.question_text||'', subject:q.subject||'其他', difficulty:q.difficulty||'中等',
+      tags:q.tags||[], myAnswer:q.student_answer||'', correctAnswer:q.correct_answer||'',
+      analysis:q.error_analysis||'', knowledge:q.knowledge_explanation||q.knowledge||'', steps:(q.solution_steps||[]).join('\n')
+    }));
+  }catch(e){ return null; }
+}
+function makeMistake(q){
+  return {id:uid(), createdAt:Date.now(), questionText:q.questionText, subject:q.subject, difficulty:q.difficulty,
+    tags:q.tags, myAnswer:q.myAnswer, correctAnswer:q.correctAnswer, myThinking:'', myMistakeReason:'',
+    referenceSteps:q.steps, commonMistakes:'', knowledge:q.knowledge||'', thinkingComparison:q.analysis,
+    masteryStatus:'unreviewed', reviewLog:[], consecutiveCorrect:0, failStreak:0, nextReviewDate:todayISO()};
+}
+function parseQuickBlock(text){
+  const get = (label) => {
+    const re = new RegExp(label+':\\s*(.*)');
+    const m = text.split(/\n/).find(l=>re.test(l));
+    if(!m) return '';
+    return m.match(re)[1].trim();
+  };
+  return {
+    questionText: get('QUESTION'),
+    subject: get('SUBJECT'),
+    difficulty: get('DIFFICULTY'),
+    tags: get('TAGS').split(',').map(s=>s.trim()).filter(Boolean),
+    correctAnswer: get('ANSWER'),
+    steps: get('STEPS').split('||').map(s=>s.trim()).filter(Boolean),
+    commonMistakes: get('MISTAKES'),
+    knowledge: get('KNOWLEDGE')
+  };
+}
+window.parseQuickPasteToAdd = function(){
+  const raw = document.getElementById('quickPaste').value.trim();
+  if(!raw){ alert('请先粘贴内容'); return; }
+  const js = parseQuickJSON(raw);
+  if(js){
+    if(js.length>1){
+      if(!confirm(`识别到${js.length}道题，直接全部存入错题集？`)) return;
+      js.forEach(q=>curProfile().mistakes.push(makeMistake(q))); saveState(); go('home'); return;
+    }
+    const q=js[0];
+    document.getElementById('f_question').value=q.questionText;
+    document.getElementById('f_subject').value=q.subject;
+    document.getElementById('f_difficulty').value=q.difficulty;
+    document.getElementById('f_tags').value=q.tags.join(', ');
+    document.getElementById('f_myanswer').value=q.myAnswer;
+    document.getElementById('f_correct').value=q.correctAnswer;
+    pendingExtras={steps:q.steps, analysis:q.analysis, knowledge:q.knowledge};
+    return;
+  }
+  const d = parseQuickBlock(raw);
+  if(d.questionText) document.getElementById('f_question').value = d.questionText;
+  if(d.subject) document.getElementById('f_subject').value = d.subject;
+  if(d.difficulty) document.getElementById('f_difficulty').value = d.difficulty;
+  if(d.tags.length) document.getElementById('f_tags').value = d.tags.join(', ');
+  if(d.correctAnswer) document.getElementById('f_correct').value = d.correctAnswer;
+  if(!d.questionText) alert('没有识别到 QUESTION 字段，请检查粘贴的格式');
+}
+window.autoTag = async function(){
+  const q = document.getElementById('f_question').value.trim();
+  if(!q){ alert('请先填写题目原文'); return; }
+  const res = await aiAnalyzeText(`分析以下题目考查的核心知识点，输出JSON: {"tags": ["标签1","标签2",...]}，生成3到5个考点标签。题目：${q}`);
+  if(res && res.tags) document.getElementById('f_tags').value = res.tags.join(', ');
+  else alert('AI调用失败：'+aiErr+'\n也可以手动填写标签。');
+}
+window.saveMistake = function(){
+  const q = document.getElementById('f_question').value.trim();
+  if(!q){ alert('请填写题目内容'); return; }
+  const m = {
+    id: uid(), createdAt: Date.now(),
+    questionText: q,
+    subject: document.getElementById('f_subject').value,
+    difficulty: document.getElementById('f_difficulty').value,
+    tags: document.getElementById('f_tags').value.split(',').map(s=>s.trim()).filter(Boolean),
+    customTags: parseMyTags(document.getElementById('f_mytags').value),
+    myAnswer: document.getElementById('f_myanswer').value,
+    correctAnswer: document.getElementById('f_correct').value,
+    myThinking:'', myMistakeReason:'', referenceSteps:(pendingExtras.steps||''), commonMistakes:'', thinkingComparison:(pendingExtras.analysis||''), knowledge:(pendingExtras.knowledge||''),
+    masteryStatus:'unreviewed', reviewLog:[], consecutiveCorrect:0, failStreak:0, nextReviewDate: todayISO()
+  };
+  curProfile().mistakes.push(m); saveState();
+  go('detail',{id:m.id});
+}
+
+function renderSearch(){
+  return `
+    <h3>搜题查误</h3>
+    <div class="card">
+      <label>📷 拍照/从相册选图，或把图片拖进来/粘贴（Ctrl+V），自动识别并解答（需先在“设置”里填写API Key）</label>
+      <div class="dropzone" id="dz_search" onclick="document.getElementById('photoPicker_search').click()">点击选择图片，或拖拽图片到这里</div>
+      <input type="file" accept="image/*" id="photoPicker_search" style="display:none;" onchange="scanPhoto(event,'search')">
+      <div id="s_ocrStatus"></div>
+      <p style="text-align:center;color:var(--muted);font-size:12px;margin:10px 0;">— 或者手动粘贴 —</p>
+      <label>📋 粘贴Claude识别结果</label>
+      <textarea id="s_quickPaste" rows="4" placeholder="QUESTION: ...&#10;ANSWER: ...&#10;TAGS: ...&#10;STEPS: 第一步 || 第二步&#10;MISTAKES: ..."></textarea>
+      <button class="ghost" onclick="parseQuickPasteToSearch()">解析并显示结果</button>
+    </div>
+    <div class="card">
+      <label>手动输入或粘贴题目</label>
+      <textarea id="s_question" rows="4" placeholder="粘贴任意一道不会做的题目"></textarea>
+      <button class="primary" onclick="doSearchSolve()">分析题目</button>
+      <div id="searchResult"></div>
+    </div>
+  `;
+}
+window.parseQuickPasteToSearch = function(){
+  const raw = document.getElementById('s_quickPaste').value.trim();
+  if(!raw){ alert('请先粘贴内容'); return; }
+  const js = parseQuickJSON(raw);
+  if(js){
+    const q=js[0];
+    document.getElementById('s_question').value=q.questionText;
+    showSearchResult(q.questionText,{correctAnswer:q.correctAnswer, steps:q.steps?q.steps.split('\n'):[], coreTags:q.tags, commonMistakes:q.analysis, knowledge:q.knowledge});
+    return;
+  }
+  const d = parseQuickBlock(raw);
+  if(!d.questionText && !d.correctAnswer){ alert('没有识别到内容，请检查粘贴的格式'); return; }
+  document.getElementById('s_question').value = d.questionText;
+  showSearchResult(d.questionText, {correctAnswer: d.correctAnswer, steps: d.steps, coreTags: d.tags, commonMistakes: d.commonMistakes, knowledge: d.knowledge});
+}
+let lastSearchResult=null;
+window.doSearchSolve = async function(){
+  const q = document.getElementById('s_question').value.trim();
+  if(!q){ alert('请输入题目，或使用上方拍照上传'); return; }
+  const resultEl = document.getElementById('searchResult');
+  resultEl.innerHTML = '<div class="spinner"></div>';
+  const res = await aiAnalyzeText(`请分析这道题目，输出JSON，字段：correctAnswer(正确答案), steps(数组，分步解题思路，每步说明为什么这样做), coreTags(数组，本题核心考点，3到5个), commonMistakes(字符串，容易在哪个步骤出错的提醒), knowledge(字符串，知识点讲解：解释这道题涉及的背景知识，包括相关概念、定义、公式或定理及其适用条件，讲得通俗易懂，适合中小学生阅读)。题目：${q}`);
+  if(!res){ resultEl.innerHTML = '<p style="color:var(--danger);">AI调用失败：'+aiErr+'</p>'; return; }
+  showSearchResult(q, res);
+}
+function showSearchResult(q, res){
+  const resultEl = document.getElementById('searchResult');
+  lastSearchResult = {question:q, ...res};
+  resultEl.innerHTML = `
+    <div style="margin-top:12px;">
+      <label>正确答案</label><p>${res.correctAnswer||''}</p>
+      <label>解题思路</label>
+      <ol>${(res.steps||[]).map(s=>`<li style="margin-bottom:6px;">${s}</li>`).join('')}</ol>
+      <label>核心考点</label>
+      <div>${(res.coreTags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      ${res.knowledge? `<label style="margin-top:8px;">知识点讲解</label><p style="white-space:pre-wrap;">${res.knowledge}</p>`:''}
+      <label style="margin-top:8px;">常见错误提醒</label><p>${res.commonMistakes||''}</p>
+      <button class="primary" onclick="saveSearchToMistake()">存入错题集</button>
+    </div>
+  `;
+}
+window.saveSearchToMistake = function(){
+  if(!lastSearchResult) return;
+  const m = {
+    id: uid(), createdAt: Date.now(),
+    questionText: lastSearchResult.question, subject:'其他', difficulty:'中等',
+    tags: lastSearchResult.coreTags||[], myAnswer:'', correctAnswer: lastSearchResult.correctAnswer||'',
+    myThinking:'', myMistakeReason:'',
+    referenceSteps:(lastSearchResult.steps||[]).join('\n'), commonMistakes: lastSearchResult.commonMistakes||'', knowledge: lastSearchResult.knowledge||'',
+    masteryStatus:'unreviewed', reviewLog:[], consecutiveCorrect:0, failStreak:0, nextReviewDate: todayISO()
+  };
+  curProfile().mistakes.push(m); saveState();
+  go('detail',{id:m.id});
+}
+
+function renderBrowse(){
+  const p = curProfile();
+  const allTags = [...new Set(p.mistakes.flatMap(m=>m.tags||[]))];
+  const myTags = [...new Set(p.mistakes.flatMap(m=>m.customTags||[]))];
+  const f = route.filterTag, fm = route.filterMine;
+  const list = p.mistakes.filter(m=>(!f||(m.tags||[]).includes(f)) && (!fm||(m.customTags||[]).includes(fm)));
+  const enc = t=>encodeURIComponent(t);
+  return `
+    <h3>标签浏览</h3>
+    <label>系统分析的考点</label>
+    <div class="filter-row">
+      <button class="${!f&&!fm?'active':''}" onclick="go('browse')">全部</button>
+      ${allTags.map(t=>`<button class="${f===t?'active':''}" onclick="go('browse',{filterTag:decodeURIComponent('${enc(t)}')})">${t}</button>`).join('')}
+    </div>
+    <label>我的分类</label>
+    <div class="filter-row">
+      ${myTags.length? myTags.map(t=>`<button class="${fm===t?'active':''}" onclick="go('browse',{filterMine:decodeURIComponent('${enc(t)}')})">${t}</button>`).join('') : '<span style="font-size:12px;color:var(--muted);">还没有自选分类，可以在录题或错题详情里添加</span>'}
+    </div>
+    ${list.length? list.map(mistakeCardHtml).join('') : `<p style="color:var(--muted);">没有符合条件的错题</p>`}
+  `;
+}
+
+function renderDetail(id){
+  const p = curProfile();
+  const m = p.mistakes.find(x=>x.id===id);
+  if(!m) return `<p>未找到该错题</p>`;
+  return `
+    <h3>错题详情</h3>
+    <div class="card">
+      <div class="meta">${statusDot(m.masteryStatus)}${statusLabel(m.masteryStatus)} · ${m.subject} · ${m.difficulty}</div>
+      <p><strong>题目：</strong>${m.questionText}</p>
+      <div><span style="font-size:12px;color:var(--muted);">系统考点：</span>${(m.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      <div><span style="font-size:12px;color:var(--muted);">我的分类：</span>${(m.customTags||[]).map(t=>`<span class="tag mine">${t}</span>`).join('') || '<span style="font-size:12px;color:var(--muted);">（未设置）</span>'}</div>
+      <p><strong>我的答案：</strong>${m.myAnswer||'（未填写）'}</p>
+      <p><strong>正确答案：</strong>${m.correctAnswer||'（未填写）'}</p>
+    </div>
+    <div class="card">
+      <label>我的分类（自选，最多3个，和系统考点分开）</label>
+      <input id="d_mytags" value="${(m.customTags||[]).join(', ').replace(/"/g,'&quot;')}">
+      ${myTagChips('d_mytags')}
+      <label>我当时是怎么想的</label>
+      <textarea id="d_thinking" rows="2">${m.myThinking||''}</textarea>
+      <label>我错在哪一步</label>
+      <textarea id="d_reason" rows="2">${m.myMistakeReason||''}</textarea>
+      <label>我的解题步骤与总结（自己重新写一遍正确的步骤，并总结这类题的规律；也可以拍照保存手写过程）</label>
+      <textarea id="d_solution" rows="4">${m.mySolution||''}</textarea>
+      <input type="file" accept="image/*" capture="environment" multiple onchange="addSolutionPhoto('${id}',event)">
+      <div>${(m.mySolutionImages||[]).map((src,i)=>`<div style="position:relative;display:inline-block;margin:4px 4px 8px 0;vertical-align:top;"><img src="${src}" style="width:140px;max-width:100%;border-radius:8px;border:1px solid var(--border);" onclick="this.style.width=this.style.width==='100%'?'140px':'100%'"><button onclick="removeSolutionPhoto('${id}',${i})" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:24px;height:24px;">×</button></div>`).join('')}</div>
+      <p style="font-size:12px;color:var(--muted);margin-top:0;">照片点一下可放大/缩小。</p>
+      <button class="ghost" onclick="saveThinking('${id}')">保存思路</button>
+      <button class="ghost" style="margin-top:6px;" onclick="genReference('${id}')">🤖 生成参考解题步骤 + 对比</button>
+      <div id="refBox">${m.referenceSteps? renderRefBox(m):''}</div>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0;">重刷</h3>
+      <button class="primary" onclick="startSingleRetry('${id}')">重做这道题</button>
+      <div id="retryBox"></div>
+      <div style="margin-top:10px;">
+        ${(m.reviewLog||[]).slice().reverse().map((r,i)=>`<div class="meta">第${(m.reviewLog.length-i)}次 | ${r.date} | ${r.correct?'✅正确':'❌错误'} | 用时${r.timeSec}秒 | ${r.comparison}</div>`).join('') || '<p style="color:var(--muted);font-size:13px;">还没有重做记录</p>'}
+      </div>
+    </div>
+    <button class="ghost" style="border-color:var(--danger);color:var(--danger);" onclick="deleteMistake('${id}')">删除这道错题</button>
+  `;
+}
+function renderRefBox(m){
+  return `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
+    <label>参考解题步骤</label>
+    <p style="white-space:pre-wrap;">${m.referenceSteps}</p>
+    <label>常见错误提醒</label>
+    <p>${m.commonMistakes||''}</p>
+    ${m.knowledge? `<label>知识点讲解</label><p style="white-space:pre-wrap;">${m.knowledge}</p>`:''}
+    ${m.thinkingComparison? `<label>与你的思路对比</label><p>${m.thinkingComparison}</p>`:''}
+  </div>`;
+}
+const STARTER_MY_TAGS=['计算粗心','审题失误','概念不清','方法没想到','期中重点'];
+function parseMyTags(s){ return [...new Set((s||'').split(/[,，、]/).map(x=>x.trim()).filter(Boolean))].slice(0,3); }
+function myTagChips(inputId){
+  const used=[...new Set(curProfile().mistakes.flatMap(m=>m.customTags||[]))];
+  const all=[...new Set([...used,...STARTER_MY_TAGS])];
+  return `<div style="margin-bottom:8px;">${all.map(t=>`<span class="tag mine" style="cursor:pointer;" onclick="addMyTag('${inputId}','${encodeURIComponent(t)}')">+ ${t}</span>`).join('')}</div>`;
+}
+window.addMyTag=function(inputId,enc){
+  const el=document.getElementById(inputId); const t=decodeURIComponent(enc);
+  const cur=parseMyTags(el.value);
+  if(cur.includes(t)) return;
+  if(cur.length>=3){ alert('最多选3个自己的分类'); return; }
+  cur.push(t); el.value=cur.join(', ');
+}
+function saveDetailFields(id){
+  const m = curProfile().mistakes.find(x=>x.id===id);
+  m.myThinking = document.getElementById('d_thinking').value;
+  m.myMistakeReason = document.getElementById('d_reason').value;
+  m.mySolution = document.getElementById('d_solution').value;
+  m.customTags = parseMyTags(document.getElementById('d_mytags').value);
+  return m;
+}
+window.saveThinking = function(id){
+  saveDetailFields(id);
+  saveState(); alert('已保存');
+}
+function compressImage(file, maxW=1000, q=0.6){
+  return new Promise((resolve,reject)=>{
+    const fr = new FileReader();
+    fr.onerror = ()=>reject(new Error('read'));
+    fr.onload = ()=>{
+      const img = new Image();
+      img.onerror = ()=>reject(new Error('img'));
+      img.onload = ()=>{
+        const s = Math.min(1, maxW/img.width);
+        const c = document.createElement('canvas');
+        c.width = Math.round(img.width*s); c.height = Math.round(img.height*s);
+        c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+        resolve(c.toDataURL('image/jpeg', q));
+      };
+      img.src = fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+window.addSolutionPhoto = async function(id, ev){
+  const files = [...ev.target.files]; if(!files.length) return;
+  const m = saveDetailFields(id);
+  m.mySolutionImages = m.mySolutionImages || [];
+  const before = m.mySolutionImages.length;
+  try{
+    for(const f of files) m.mySolutionImages.push(await compressImage(f));
+  }catch(e){ alert('有图片处理失败，请换一张再试'); }
+  if(!saveState()){
+    m.mySolutionImages.splice(before);
+    alert('浏览器存储空间不足，这次的图片没有保存。建议先用"设置"里的导出备份，再删除一些旧图片。');
+  }
+  render();
+}
+window.removeSolutionPhoto = function(id, i){
+  const m = saveDetailFields(id);
+  (m.mySolutionImages||[]).splice(i,1);
+  saveState(); render();
+}
+window.genReference = async function(id){
+  const m = curProfile().mistakes.find(x=>x.id===id);
+  saveThinking(id);
+  const box = document.getElementById('refBox');
+  box.innerHTML = '<div class="spinner"></div>';
+  const res = await aiAnalyzeText(`题目：${m.questionText}\n正确答案：${m.correctAnswer}\n孩子的解题思路：${m.myThinking||'（未填写）'}\n孩子分析的错误原因：${m.myMistakeReason||'（未填写）'}\n孩子写的解题步骤总结：${m.mySolution||'（未填写）'}\n请输出JSON，字段：steps(数组，标准解法分步展示), commonMistakes(字符串，常见错误提醒), comparison(字符串，将标准解法与孩子的思路对比，指出逻辑断裂点；如果孩子未填写思路则说明无法对比)。`);
+  if(!res){ box.innerHTML='<p style="color:var(--danger);">AI调用失败：'+aiErr+'</p>'; return; }
+  m.referenceSteps = (res.steps||[]).join('\n');
+  m.commonMistakes = res.commonMistakes||'';
+  m.thinkingComparison = res.comparison||'';
+  saveState();
+  box.innerHTML = renderRefBox(m);
+}
+window.deleteMistake = function(id){
+  if(!confirm('确定删除这道错题吗？')) return;
+  const p = curProfile();
+  p.mistakes = p.mistakes.filter(x=>x.id!==id);
+  saveState(); go('home');
+}
+
+let retryStart=null;
+window.startSingleRetry = function(id){
+  retryStart = Date.now();
+  document.getElementById('retryBox').innerHTML = `
+    <p style="font-size:13px;color:var(--muted);margin-top:8px;">作答后点击结果：</p>
+    <div class="grid2">
+      <button class="primary" onclick="submitRetry('${id}', true)">✅ 做对了</button>
+      <button class="ghost" style="border-color:var(--danger);color:var(--danger);" onclick="submitRetry('${id}', false)">❌ 做错了</button>
+    </div>
+  `;
+}
+window.submitRetry = function(id, correct){
+  const m = curProfile().mistakes.find(x=>x.id===id);
+  const s = curProfile().settings;
+  const timeSec = Math.round((Date.now()-retryStart)/1000);
+  const lastLog = m.reviewLog[m.reviewLog.length-1];
+  let comparison = '首次重做';
+  if(lastLog) comparison = correct && !lastLog.correct ? '进步' : !correct && lastLog.correct ? '退步' : '持平';
+  m.reviewLog.push({date: todayISO(), correct, timeSec, comparison});
+  if(correct){
+    m.consecutiveCorrect = (m.consecutiveCorrect||0)+1;
+    m.failStreak = 0;
+    if(m.consecutiveCorrect >= s.masterAfter){ m.masteryStatus='mastered'; m.nextReviewDate=null; }
+    else{
+      m.masteryStatus='reviewing';
+      const interval = m.consecutiveCorrect===1? s.interval1 : m.consecutiveCorrect===2? s.interval2 : s.interval3;
+      m.nextReviewDate = addDays(todayISO(), interval);
+    }
+  } else {
+    m.consecutiveCorrect = 0;
+    m.failStreak = (m.failStreak||0)+1;
+    m.masteryStatus='reviewing';
+    m.nextReviewDate = addDays(todayISO(), s.resetInterval);
+  }
+  saveState();
+  render();
+}
+
+function renderReview(){
+  const p = curProfile();
+  const today = todayISO();
+  const due = p.mistakes.filter(m=>m.masteryStatus!=='mastered' && m.nextReviewDate && m.nextReviewDate<=today);
+  return `
+    <h3>今日复习 (${due.length})</h3>
+    ${due.length? due.map(mistakeCardHtml).join('') : `<p style="color:var(--muted);">今天没有待复习的错题，太棒了！</p>`}
+    <h3 style="margin-top:20px;">按标签选一组重刷</h3>
+    <p style="font-size:13px;color:var(--muted);">前往"标签"页面选择标签后，点击题目进入详情即可重做。</p>
+  `;
+}
+
+function renderOverview(){
+  const p = curProfile();
+  const onlyUnmastered = route.onlyUnmastered;
+  const onlyAttention = route.onlyAttention;
+  let list = p.mistakes;
+  if(onlyUnmastered) list = list.filter(m=>m.masteryStatus!=='mastered');
+  if(onlyAttention) list = list.filter(m=>(m.failStreak||0)>=3);
+  const groups = {};
+  list.forEach(m=>{
+    const src = route.groupMine ? m.customTags : m.tags; const tags = (src && src.length)? src : ['未分类'];
+    tags.forEach(t=>{ (groups[t]=groups[t]||[]).push(m); });
+  });
+  return `
+    <h3 class="no-print">复习总览</h3>
+    <div class="filter-row no-print">
+      <button class="${!onlyUnmastered&&!onlyAttention?'active':''}" onclick="go('overview',{groupMine:${!!route.groupMine}})">全部</button>
+      <button class="${onlyUnmastered?'active':''}" onclick="go('overview',{onlyUnmastered:true,groupMine:${!!route.groupMine}})">只看未掌握</button>
+      <button class="${onlyAttention?'active':''}" onclick="go('overview',{onlyAttention:true,groupMine:${!!route.groupMine}})">只看需重点关注</button>
+    </div>
+    <div class="filter-row no-print">
+      <button class="${!route.groupMine?'active':''}" onclick="go('overview',{onlyUnmastered:${!!onlyUnmastered},onlyAttention:${!!onlyAttention}})">按系统考点分组</button>
+      <button class="${route.groupMine?'active':''}" onclick="go('overview',{onlyUnmastered:${!!onlyUnmastered},onlyAttention:${!!onlyAttention},groupMine:true})">按我的分类分组</button>
+    </div>
+    <button class="ghost no-print" style="margin-bottom:12px;" onclick="window.print()">🖨️ 导出打印格式</button>
+    ${Object.keys(groups).length? Object.keys(groups).map(tag=>`
+      <div class="card">
+        <h3 style="margin-top:0;">${tag}</h3>
+        ${groups[tag].map(m=>{
+          const logs = (m.reviewLog||[]).map((r,i)=>`第${i+1}次 ${r.date.slice(5)} ${r.correct?'✅':'❌'} ${r.timeSec}秒 ${r.comparison}`);
+          return `<div class="meta" style="margin-bottom:8px;">
+            ${statusDot(m.masteryStatus)}${(m.questionText||'').slice(0,30)}${(m.questionText||'').length>30?'…':''}
+            <br>状态：${statusLabel(m.masteryStatus)} · 重做${m.reviewLog.length}次${logs.length? '<br>'+logs.join('<br>') : ''}
+          </div>`;
+        }).join('')}
+      </div>
+    `).join('') : `<p style="color:var(--muted);">没有符合条件的错题</p>`}
+  `;
+}
+
+function renderSettings(){
+  const s = curProfile().settings;
+  return `
+    <h3>设置</h3>
+    <div class="card">
+      <label>第一次重刷正确的间隔天数</label>
+      <input type="number" id="st_i1" value="${s.interval1}">
+      <label>连续两次重刷正确的间隔天数</label>
+      <input type="number" id="st_i2" value="${s.interval2}">
+      <label>连续三次重刷正确的间隔天数</label>
+      <input type="number" id="st_i3" value="${s.interval3}">
+      <label>连续几次正确后标记为"已掌握"</label>
+      <input type="number" id="st_master" value="${s.masterAfter}">
+      <label>任何一次错误后重置的间隔天数</label>
+      <input type="number" id="st_reset" value="${s.resetInterval}">
+      <label>每日提醒时间</label>
+      <input type="time" id="st_reminder" value="${s.reminderTime}">
+      <button class="primary" onclick="saveSettings()">保存设置</button>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0;">AI 设置（拍照识别、搜题分析、自动标签需要）</h3>
+      <label>Anthropic API Key（在 console.anthropic.com 创建；只保存在这个浏览器里，不会写进备份文件）</label>
+      <input type="password" id="ai_key" value="${AI_CFG().key||''}" placeholder="sk-ant-...">
+      <label>模型</label>
+      <input id="ai_model" value="${AI_CFG().model||'claude-sonnet-5-5'}">
+      <button class="primary" onclick="saveAISettings()">保存AI设置</button>
+      <button class="ghost" style="margin-top:8px;" onclick="testAI()">测试连接</button>
+      <div id="aiTestResult" style="font-size:13px;margin-top:8px;"></div>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0;">数据管理</h3>
+      <button class="ghost" onclick="exportData()">导出备份 (JSON)</button>
+      <label style="margin-top:10px;">从JSON文件导入</label>
+      <input type="file" accept=".json" onchange="importData(event)">
+    </div>
+  `;
+}
+window.saveSettings = function(){
+  const s = curProfile().settings;
+  s.interval1 = +document.getElementById('st_i1').value;
+  s.interval2 = +document.getElementById('st_i2').value;
+  s.interval3 = +document.getElementById('st_i3').value;
+  s.masterAfter = +document.getElementById('st_master').value;
+  s.resetInterval = +document.getElementById('st_reset').value;
+  s.reminderTime = document.getElementById('st_reminder').value;
+  saveState(); alert('设置已保存');
+}
+window.exportData = function(){
+  const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = '错题集备份-' + todayISO() + '.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 1000);
+}
+window.importData = function(ev){
+  const file = ev.target.files[0]; if(!file) return;
+  if(!confirm('导入会覆盖当前浏览器里的所有档案数据，确定继续吗？')){ ev.target.value=''; return; }
+  const reader = new FileReader();
+  reader.onload = function(){
+    try{
+      const data = JSON.parse(reader.result);
+      if(!data.profiles) throw new Error('格式不正确');
+      state = data; saveState(); render();
+      alert('导入成功');
+    }catch(e){ alert('导入失败：文件格式不正确'); }
+  };
+  reader.readAsText(file);
+}
+
+function bindView(){
+  if(route.view==='add') setupDropzone('dz_add','add');
+  if(route.view==='search') setupDropzone('dz_search','search');
+}
+
+render();
+</script>
+</body>
+</html>
